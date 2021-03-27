@@ -16,6 +16,7 @@
 - 정렬(Sorting)
 - 그래프(DFS/BFS)
 - 재귀(Recursion)
+- 백트래킹(BackTracking)
 
 ## 링크
 백준 : https://www.acmicpc.net/

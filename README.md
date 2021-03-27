@@ -1,5 +1,6 @@
 # CodingTest
 - 코딩 테스트 대비를 위한 3인 공동 주 1회 백준 문제풀이 Repository 입니다.
+- 깃 테스트를 위한 임시 줄 (지워도 됨)
 
 ## 링크
 백준 : https://www.acmicpc.net/

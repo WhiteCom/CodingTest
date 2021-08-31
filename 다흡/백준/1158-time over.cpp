@@ -1,117 +1,104 @@
 ﻿#include <stdio.h>
 
-struct arr
+struct Node
 {
-	arr* prev;
-	int n;
+	int data;
+	Node* link;
 };
 
-arr* inp;
-int last;
-
-void add(int num)
+struct Queue
 {
-	arr* tmp = new arr();
-	tmp->prev = inp;
-	tmp->n = num;
+	Node* front, * rear;
+};
 
-	inp = tmp;
-	last++;
+Queue* createQueue()
+{
+	Queue* q = new Queue;
+	q->front = NULL;
+	q->rear = NULL;
+	return q;
 }
 
-arr* findFirst()
+int isEmpty(Queue* q)
 {
-	arr* tmp = inp;
-	for (; tmp->prev;)
-	{
+	if (q->front == NULL)
+		return 1;
 
-		tmp = tmp->prev;
+	return 0;
+}
+
+void enQueue(Queue* q, int data)
+{
+	Node* temp = new Node;
+	temp->data = data;
+	temp->link = NULL;
+	if (q->front == NULL)
+	{
+		q->front = temp;
+		q->rear = temp;
 	}
-	return tmp;
+	else
+	{
+		q->rear->link = temp;
+		q->rear = temp;
+	}
 }
 
-void remove(int index)
+int deQueue(Queue* q)
 {
-	arr* node = inp;
-	arr* nNode = NULL;
-	int goal = last - 1;
-	for (int i = 1; node; i++)
+	Node* last = q->front;
+	int data;
+	if (isEmpty(q))
+		return -1;
+	else
 	{
-		if (goal == index)
+		data = last->data;
+		q->front = q->front->link;
+		if (q->front == NULL)
 		{
-			if (i == 1) //마지막 인덱스 삭제인경우
-			{
-				arr* tmp = node->prev;
-				delete node;
-				last--;
-				inp = tmp;
-				break;
-			}
-			else
-			{
-				nNode->prev = node->prev;
-				delete node;
-				last--;
-				break;
-
-			}
+			q->rear = NULL;
 		}
-		nNode = node;
-		node = node->prev;
-		goal--;
+		delete last;
+		return data;
+	}
+}
+
+void printQueue(Queue* q)
+{
+	Node* temp = q->front;
+	printf("link Q : ");
+	while (temp)
+	{
+		printf("%d ", temp->data);
+		temp = temp->link;
 	}
 }
 
 int main()
 {
-	int N, K, i;
-	scanf("%d %d", &N, &K);
+	int n, k;
+	scanf("%d %d", &n, &k);
 
-	int* val = new int[N];
-	int valNum = 0;
+	Queue* q = createQueue();
+	for (int i = 1; i <= n; i++)
+		enQueue(q, i);
 
-	inp = NULL; //empty node
-
-	for (i = 0; i < N; i++)
+	int cnt = 1;
+	printf("<");
+	while (n > 1)
 	{
-		add(i + 1);
-	}
-
-	arr* tmp = inp;
-	for (i = 1; tmp; i++)
-	{
-		if (valNum >= N) break;
-
-		if (i % K == 0) //remove
+		if (cnt == k)
 		{
-			arr* tmp2 = findFirst();
-			val[valNum] = tmp2->n;
-			valNum++;
-			remove(0);
+			cnt = 1;
+			printf("%d, ", deQueue(q));
+			n--;
 			continue;
 		}
-		arr* tmp2 = findFirst();
-		add(tmp2->n);
-		remove(0);
-	}
 
-	printf("<");
-	for (int i = 0; i < valNum; i++)
-	{
-		if (i == valNum - 1)
-		{
-			printf("%d>", val[i]);
-			break;
-		}
-		printf("%d, ", val[i]);
+		enQueue(q, deQueue(q));
+		cnt++;
 	}
-
-	for (; inp;)
-	{
-		arr* tmp = inp->prev;
-		delete inp;
-		inp = tmp;
-	}
+	printf("%d>", deQueue(q));
 
 	return 0;
 }

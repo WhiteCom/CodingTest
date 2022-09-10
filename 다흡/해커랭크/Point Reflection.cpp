@@ -19,6 +19,9 @@ vector<string> split(const string&);
  *  4. INTEGER qy
  */
 
+//==========================================================
+// 실제 작성코드
+//==========================================================
 vector<int> findPoint(int px, int py, int qx, int qy) {
     vector<int> result;
 

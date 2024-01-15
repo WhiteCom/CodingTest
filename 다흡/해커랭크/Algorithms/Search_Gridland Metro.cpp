@@ -19,33 +19,32 @@ vector<string> split(const string&);
 
 long long gridlandMetro(int n, int m, int k, vector<vector<int>> track) {
 
+    // Note : A train track may overlap other train tracks within the same row.
     long long total = static_cast<long long>(n) * m;
 
-    map<int, vector<int>> d;
-
+    map<int, vector<int>> trainPath;
     for (int i = 0; i < k; ++i)
     {
         int r = track[i][0];
-        int c1 = track[i][1];
-        int c2 = track[i][2];
+        int sC = track[i][1];
+        int eC = track[i][2];
 
-        if (d.find(r) == d.end())
-            d.insert({ r, {c1, c2} });
-        else if (c1 > d.find(r)->second[1])
-            total -= c2 - c1 + 1;
-        else if (c2 > d.find(r)->second[1])
-            d.find(r)->second[1] = c2;
+        // if not foun trainPath
+        if (trainPath.find(r) == trainPath.end()) // empty case, insert
+            trainPath.insert({ r, {sC, eC} });
+        else if (sC > trainPath.find(r)->second[1]) // ???
+            total -= eC - sC + 1;
+        else if (eC > trainPath.find(r)->second[1]) // overlap case, update trainPath
+            trainPath.find(r)->second[1] = eC;
     }
 
-    long long tracks = 0;
     map<int, vector<int>>::iterator it;
-    for (it = d.begin(); it != d.end(); ++it)
+    for (it = trainPath.begin(); it != trainPath.end(); ++it)
     {
-        tracks += it->second[1] - it->second[0] + 1;
+        total -= it->second[1] - it->second[0] + 1;
     }
 
-    long long lamps = total - tracks;
-    return lamps;
+    return total;
 }
 
 int main()

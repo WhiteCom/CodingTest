@@ -3,15 +3,7 @@
 #include <string>
 #include <queue>
 
-#define MAX_DISTANCE 1000000
-
 using namespace std;
-
-struct sData
-{
-	int x, y;
-	int value;
-};
 
 struct posData
 {
@@ -20,72 +12,69 @@ struct posData
 	int count;
 };
 
-int BFS(vector< vector<sData>>& graph, vector< vector< vector<bool>>>& visited, int targetY, int targetX)
+int BFS(vector< vector<int>>& graph, vector< vector< vector<bool>>>& visited, int targetY, int targetX)
 {
 	int maxY = graph.size();
 	int maxX = graph[0].size();
 
+	queue<posData> q;
 	posData startPos;
 	startPos.x = 0;
 	startPos.y = 0;
 	startPos.wall = 0;
 	startPos.count = 1;
 
-	queue<posData> q;
 	q.push(startPos);
-
-	visited[0][startPos.y][startPos.x] = true;
 
 	int dx[4] = { -1, 1, 0, 0 };
 	int dy[4] = { 0, 0, -1, 1 };
 
-	// 방문하면서 목표지점까지 도달하는데 거리(distance)를 갱신해줘야함.
-	// 벽을 부수고 왔는지 여부에 따라 어떤 계층의 2차원 맵을 갱신해줘야 할 지 달라짐.
 	while (!q.empty())
 	{
-		posData sPos = q.front();
-
-		int curWall = sPos.wall;
-		int curCount = sPos.count;
-
+		posData sPos;
+		sPos = q.front();
+		
 		q.pop();
 
-		if (sPos.y == targetY && sPos.x == targetX)
+		if (sPos.x == targetX && sPos.y == targetY)
 		{
-			return curCount;
+			return sPos.count;
 		}
-		 
+
 		for (int i = 0; i < 4; ++i)
 		{
 			posData nextPos;
-			nextPos.y = sPos.y + dy[i];
 			nextPos.x = sPos.x + dx[i];
-			nextPos.count = curCount + 1;
-			
-			// 범위 체크, 현재 좌표 방문여부
+			nextPos.y = sPos.y + dy[i];
+			nextPos.wall = sPos.wall;
+			nextPos.count = sPos.count;
+
+			// 범위 체크, 방문여부 체크
 			if (0 <= nextPos.x && nextPos.x < maxX
 				&& 0 <= nextPos.y && nextPos.y < maxY
-				&& visited[curWall][nextPos.y][nextPos.x] == false)
+				&& visited[nextPos.wall][nextPos.y][nextPos.x] == false)
 			{
-				// 벽이 없는경우
-				if (graph[nextPos.y][nextPos.x].value == 0)
+				// 벽 아닌경우
+				if (graph[nextPos.y][nextPos.x] == 0)
 				{
-					visited[curWall][nextPos.y][nextPos.x] = true;
-					nextPos.wall = curWall;
+					nextPos.count += 1;
+					visited[nextPos.wall][nextPos.y][nextPos.x] = true;
 					q.push(nextPos);
 				}
 
-				// 벽이 있는경우, 아직 안 뚫은 경우
-				else if (graph[nextPos.y][nextPos.x].value == 1 && curWall == 0)
+				// 벽 인경우 + 이전에 벽 뚫고왔는지 체크
+				if (graph[nextPos.y][nextPos.x] == 1 && nextPos.wall == 0)
 				{
-					visited[curWall + 1][nextPos.y][nextPos.x] = true;
-					nextPos.wall = curWall + 1;
+					nextPos.wall += 1;
+					nextPos.count += 1;
+					visited[nextPos.wall][nextPos.y][nextPos.x] = true;
 					q.push(nextPos);
 				}
 			}
 		}
 	}
-
+	
+	// 도착지점에 도달하지 못한 경우, -1 반환
 	return -1;
 }
 
@@ -95,29 +84,24 @@ int main()
 	cin >> row >> col;
 
 	vector<string> inputData(row, "");
-
 	for (int i = 0; i < row; ++i)
 	{
 		cin >> inputData[i];
 	}
 
-	vector< vector<sData>> graph(row, vector<sData>(col, { 0, 0, 0 }));
-	vector< vector< vector<bool>>> visited(2, vector< vector<bool>>(row, vector<bool>(col, false)));
-
-	// Convert String to Int 
+	// Convert String to Int
+	vector< vector<int>> graph(row, vector<int>(col, 0));
 	for (int i = 0; i < row; ++i)
 	{
 		for (int j = 0; j < col; ++j)
 		{
-			graph[i][j].value = inputData[i][j] - '0';
+			graph[i][j] = inputData[i][j] - '0';
 		}
 	}
 
-	
+	vector< vector< vector<bool>>> visited(2, vector< vector<bool>>(row, vector<bool>(col, false)));
 
-	int result = 0;
-	result = BFS(graph, visited, row - 1, col - 1);
-
+	int result = BFS(graph, visited, row - 1, col - 1);
 	cout << result << '\n';
 
 	return 0;
